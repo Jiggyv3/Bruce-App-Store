@@ -4,9 +4,6 @@ on:
   push:
     paths:
       - 'App Store.js'
-  pull_request:
-    paths:
-      - 'App Store.js'
   workflow_dispatch:
 
 jobs:
