@@ -18,17 +18,14 @@ if [ -f "minified/App Store.js" ]; then
   rm "minified/App Store.js"
 fi
 
-# Minify the JavaScript file using terser
+# Minify the JavaScript file using terser with configuration file
 npx terser "App Store.js" \
-  --compress \
-  --mangle \
-  --output "minified/App Store.js"
-
-  
+  --config-file ".github/scripts/terser.max.json" \
+  --output "minified/App Store.terser.js"
 
 # Check if minification was successful
-if [ -f "minified/App Store.js" ] && [ -s "minified/App Store.js" ]; then
-  echo "Minification successful!"
+if [ -f "minified/App Store.terser.js" ] && [ -s "minified/App Store.terser.js" ]; then
+  echo "Minification (Terser) successful!"
   echo "Original file size: $(wc -c < "App Store.js") bytes"
   echo "Minified file size: $(wc -c < "minified/App Store.js") bytes"
   
@@ -38,12 +35,12 @@ if [ -f "minified/App Store.js" ] && [ -s "minified/App Store.js" ]; then
   
   # Run catch variable renaming on the minified file
   echo "Applying catch variable renaming to minified file..."
-  node ".github/scripts/post-minify-rename-catch.js"
+  node ".github/scripts/rename-catch.js"
   
-  if [ $? -eq 0 ]; then
-    echo "Catch variable renaming successful!"
-    echo "Original file size: $(wc -c < "App Store.js") bytes"
-    echo "Final file size: $(wc -c < "minified/App Store.js") bytes"
+if [ -f "minified/App Store.babel.js" ] && [ -s "minified/App Store.babel.js" ]; then
+  echo "Catch variable renaming successful!"
+  echo "Original file size: $(wc -c < "App Store.terser.js") bytes"
+  echo "Minified file size: $(wc -c < "minified/App Store.babel.js") bytes"
   else
     echo "Catch variable renaming failed"
     exit 1
@@ -52,6 +49,9 @@ else
   echo "Minification failed - output file is missing or empty"
   exit 1
 fi
+
+# Move the final minified file to App Store.js
+mv "minified/App Store.babel.js" "minified/App Store.js"
 
 # Configure git
 echo "Configuring git..."
