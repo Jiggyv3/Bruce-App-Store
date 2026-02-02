@@ -12,17 +12,22 @@ CONTENT=$(cat "App Store.js")
 echo "Creating minified directory..."
 mkdir -p "minified"
 
-# Make POST request to minifier API
-echo "Sending content to minifier API..."
-curl -X POST \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  --data-urlencode "input=${CONTENT}" \
-  "https://www.toptal.com/developers/javascript-minifier/api/raw" \
-  -o "minified/App Store.js"
+# Remove existing minified file if it exists
+if [ -f "minified/App Store.js" ]; then
+  echo "Removing existing minified file..."
+  rm "minified/App Store.js"
+fi
+
+# Minify the JavaScript file using terser
+npx terser "App Store.js" \
+  --compress \
+  --mangle reserved=['e1','e2','e3','e4','e5','e6','e7','e8','d9'] \
+  --output "minified/App Store.js"
 
 # Check if minification was successful
 if [ -f "minified/App Store.js" ] && [ -s "minified/App Store.js" ]; then
   echo "Minification successful!"
+  echo "Original file size: $(wc -c < "App Store.js") bytes"
   echo "Minified file size: $(wc -c < "minified/App Store.js") bytes"
 else
   echo "Minification failed - output file is missing or empty"
